@@ -1,82 +1,76 @@
-import React, { useState } from 'react';
 import Input from '../common/Input/Input';
-import Field from '../common/Field/Field';
+import Field from '../layout/Field/Field';
 
-interface CardNumbers {
-  first: string;
-  second: string;
-  third: string;
-  fourth: string;
-}
+import useAddCardInput from '../../hooks/useAddCardInput';
+import { ADD_CARD_FORM_FIELDS, ERRORS } from '../../constants/messages';
+import { hasFourDigit, isInteger } from '../../domain/validators';
 
 interface CardNumberInputProps {
   setCardData: (key: keyof CardInfo, newData: CardInfo[keyof CardInfo]) => void;
 }
 
+const { CARD_NUMBER } = ADD_CARD_FORM_FIELDS;
+
 export default function CardNumberInput({ setCardData }: CardNumberInputProps) {
-  const [cardNumbers, setCardNumbers] = useState<CardNumbers>({
-    first: '',
-    second: '',
-    third: '',
-    fourth: '',
-  });
-  const [isError, setIsError] = useState<Record<keyof CardNumbers, boolean>>({
-    first: false,
-    second: false,
-    third: false,
-    fourth: false,
-  });
-
-  const [errMsg, setErrMsg] = useState('');
-
-  const isInteger = (value: string) => {
-    return Number.isInteger(Number(value));
-  };
-
-  const hasFourDigit = (value: string) => {
-    return value.length === 4;
-  };
-
-  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-
+  const validateInputOnChange = ({
+    value,
+  }: {
+    name?: string;
+    value: string;
+  }) => {
     if (!isInteger(value)) {
-      setErrMsg('숫자만 입력 가능합니다.');
-      setIsError({ ...isError, [name]: true });
-      return;
+      return { isValid: false, errorMsg: ERRORS.isNotAlphabet };
     }
-    setErrMsg('');
-    setIsError({ ...isError, [name]: false });
-
-    setCardNumbers({ ...cardNumbers, [name]: value });
+    return { isValid: true, errorMsg: '' };
   };
 
-  const onBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-
-    setCardData('cardNumbers', Object.values(cardNumbers));
-
+  const validateInputOnBlur = ({ value }: { name?: string; value: string }) => {
     if (!hasFourDigit(value)) {
-      setErrMsg('4자리 숫자를 입력해 주세요.');
-      setIsError({ ...isError, [name]: true });
-      return;
+      return { isValid: false, errorMsg: ERRORS.isNotFourDigit };
     }
-    setIsError({ ...isError, [name]: false });
-    setErrMsg('');
+    return { isValid: true, errorMsg: '' };
   };
+
+  const processData = () => {
+    setCardData('cardNumbers', Object.values(cardNumbers));
+  };
+
+  const {
+    values: cardNumbers,
+    errMsg,
+    isError,
+    onChange,
+    onBlur,
+  } = useAddCardInput<CardNumbers>({
+    initialValues: {
+      first: '',
+      second: '',
+      third: '',
+      fourth: '',
+    },
+    initialErrors: {
+      first: false,
+      second: false,
+      third: false,
+      fourth: false,
+    },
+    validateInputOnChange,
+    validateInputOnBlur,
+    processData,
+  });
 
   return (
     <Field
-      title="결제할 카드 번호를 입력해 주세요"
-      description="본인 명의의 카드만 결제 가능합니다."
-      labelText="카드 번호"
+      title={CARD_NUMBER.title}
+      description={CARD_NUMBER.description}
+      labelText={CARD_NUMBER.labelText}
       errMsg={errMsg}
     >
       {Object.keys(cardNumbers).map((name) => (
         <Input
           key={name}
           name={name as keyof CardNumbers}
-          placeholder="1234"
+          placeholder={CARD_NUMBER.placeholder}
           value={cardNumbers[name as keyof CardNumbers]}
           isError={isError[name as keyof CardNumbers]}
           handleChange={onChange}

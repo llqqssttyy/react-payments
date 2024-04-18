@@ -1,59 +1,62 @@
-import React, { useState } from 'react';
-import Field from '../common/Field/Field';
 import Input from '../common/Input/Input';
+import Field from '../layout/Field/Field';
 
-interface OwnerName {
-  ownerName: string;
-}
+import useAddCardInput from '../../hooks/useAddCardInput';
+
+import { ADD_CARD_FORM_FIELDS, ERRORS } from '../../constants/messages';
+import { isCharacter } from '../../domain/validators';
+
+const { OWNER_NAME } = ADD_CARD_FORM_FIELDS;
 
 interface OwnerNameInputProps {
   setCardData: (key: keyof CardInfo, newData: CardInfo[keyof CardInfo]) => void;
 }
 
 function OwnerNameInput({ setCardData }: OwnerNameInputProps) {
-  const [ownerName, setOwnerName] = useState<OwnerName>({ ownerName: '' });
-  const [isError, setIsError] = useState<Record<keyof OwnerName, boolean>>({
-    ownerName: false,
-  });
-  const [errMsg, setErrMsg] = useState('');
-
-  const isCharacter = (value: string) => {
-    const regex = /^[a-zA-Z]+$/;
-    return regex.test(value);
-  };
-
-  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-
+  const validateInputOnChange = ({
+    value,
+  }: {
+    name?: string;
+    value: string;
+  }) => {
     if (value !== '' && !isCharacter(value)) {
-      setErrMsg('알파벳만 입력 가능합니다.');
-      setIsError({ ...isError, [name]: true });
-      return;
+      return { isValid: false, errorMsg: ERRORS.isNotAlphabet };
     }
-    setErrMsg('');
-    setIsError({ ...isError, [name]: false });
-
-    setOwnerName({ ...ownerName, [name]: value.toUpperCase() });
+    return { isValid: true, errorMsg: '' };
   };
 
-  const onBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-
-    setOwnerName({ ...ownerName, [name]: value.trim() });
+  const processData = () => {
     setCardData('ownerName', Object.values(ownerName));
   };
 
+  const {
+    values: ownerName,
+    errMsg,
+    isError,
+    onChange,
+    onBlur,
+  } = useAddCardInput<OwnerName>({
+    initialValues: {
+      ownerName: '',
+    },
+    initialErrors: {
+      ownerName: false,
+    },
+    validateInputOnChange,
+    processData,
+  });
+
   return (
     <Field
-      title="카드 소유자 이름을 입력해 주세요"
-      labelText="소유자 이름"
+      title={OWNER_NAME.title}
+      labelText={OWNER_NAME.labelText}
       errMsg={errMsg}
     >
       {Object.keys(ownerName).map((name) => (
         <Input
           key={name}
           name={name as keyof OwnerName}
-          placeholder="JOHN DOE"
+          placeholder={OWNER_NAME.placeholder}
           value={ownerName[name as keyof OwnerName]}
           isError={isError[name as keyof OwnerName]}
           isRequired={true}
