@@ -1,13 +1,13 @@
-import Input from '../common/Input/Input';
 import Field from '../common/Field/Field';
+import Input from '../common/Input/Input';
 import Label from '../common/Label/Label';
 
 import useAddCardInput, { InputType } from '../../hooks/useAddCardInput';
 
 import { isEnglishCharacter } from '../../domain/validators';
 
+import { Fragment } from 'react';
 import { ADD_CARD_FORM_FIELDS, ERRORS } from '../../constants/messages';
-import { useEffect } from 'react';
 
 const { OWNER_NAME } = ADD_CARD_FORM_FIELDS;
 
@@ -16,6 +16,10 @@ interface OwnerNameInputProps {
 }
 
 function OwnerNameInput({ setCardData }: OwnerNameInputProps) {
+  const initialValues = {
+    ownerName: '',
+  };
+
   const validateInputOnChange = ({ value }: InputType) => {
     if (value !== '' && !isEnglishCharacter(value)) {
       return { isValid: false, errorMsg: ERRORS.isNotAlphabet };
@@ -34,19 +38,10 @@ function OwnerNameInput({ setCardData }: OwnerNameInputProps) {
     onChange,
     onBlur,
   } = useAddCardInput<OwnerName>({
-    initialValues: {
-      ownerName: '',
-    },
-    initialErrors: {
-      ownerName: false,
-    },
+    initialValues,
     validateInputOnChange,
     updateCardData,
   });
-
-  useEffect(() => {
-    console.log(ownerName);
-  }, [ownerName]);
 
   return (
     <Field
@@ -57,10 +52,9 @@ function OwnerNameInput({ setCardData }: OwnerNameInputProps) {
       {Object.keys(ownerName).map((n) => {
         const name = n as keyof OwnerName;
         return (
-          <>
-            <Label key={name} htmlFor={name} labelText={name} hideLabel />
+          <Fragment key={name}>
+            <Label htmlFor={name} labelText={name} hideLabel />
             <Input
-              key={name}
               id={name}
               name={name}
               placeholder={OWNER_NAME.placeholder}
@@ -71,7 +65,7 @@ function OwnerNameInput({ setCardData }: OwnerNameInputProps) {
               handleOnBlur={onBlur}
               maxLength={26}
             />
-          </>
+          </Fragment>
         );
       })}
     </Field>

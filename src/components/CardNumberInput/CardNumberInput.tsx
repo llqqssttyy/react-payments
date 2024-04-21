@@ -7,6 +7,7 @@ import { hasFourDigit, isInteger } from '../../domain/validators';
 import useAddCardInput, { InputType } from '../../hooks/useAddCardInput';
 
 import { ADD_CARD_FORM_FIELDS, ERRORS } from '../../constants/messages';
+import { Fragment } from 'react/jsx-runtime';
 
 interface CardNumberInputProps {
   setCardData: (key: keyof CardInfo, newData: CardInfo[keyof CardInfo]) => void;
@@ -15,6 +16,13 @@ interface CardNumberInputProps {
 const { CARD_NUMBER } = ADD_CARD_FORM_FIELDS;
 
 export default function CardNumberInput({ setCardData }: CardNumberInputProps) {
+  const initialValues = {
+    first: '',
+    second: '',
+    third: '',
+    fourth: '',
+  };
+
   const validateInputOnChange = ({ value }: InputType) => {
     if (!isInteger(value)) {
       return { isValid: false, errorMsg: ERRORS.isNotInteger };
@@ -40,18 +48,7 @@ export default function CardNumberInput({ setCardData }: CardNumberInputProps) {
     onChange,
     onBlur,
   } = useAddCardInput<CardNumbers>({
-    initialValues: {
-      first: '',
-      second: '',
-      third: '',
-      fourth: '',
-    },
-    initialErrors: {
-      first: false,
-      second: false,
-      third: false,
-      fourth: false,
-    },
+    initialValues,
     validateInputOnChange,
     validateInputOnBlur,
     updateCardData,
@@ -67,10 +64,9 @@ export default function CardNumberInput({ setCardData }: CardNumberInputProps) {
       {Object.keys(cardNumbers).map((n) => {
         const name = n as keyof CardNumbers;
         return (
-          <>
-            <Label key={name} htmlFor={name} labelText={name} hideLabel />
+          <Fragment key={name}>
+            <Label htmlFor={name} labelText={name} hideLabel />
             <Input
-              key={name}
               id={name}
               name={name}
               placeholder={CARD_NUMBER.placeholder}
@@ -80,7 +76,7 @@ export default function CardNumberInput({ setCardData }: CardNumberInputProps) {
               handleOnBlur={onBlur}
               maxLength={4}
             />
-          </>
+          </Fragment>
         );
       })}
     </Field>
