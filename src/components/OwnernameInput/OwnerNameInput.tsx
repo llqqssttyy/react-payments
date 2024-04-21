@@ -1,10 +1,13 @@
 import Input from '../common/Input/Input';
-import Field from '../layout/Field/Field';
+import Field from '../common/Field/Field';
+import Label from '../common/Label/Label';
 
-import useAddCardInput from '../../hooks/useAddCardInput';
+import useAddCardInput, { InputType } from '../../hooks/useAddCardInput';
+
+import { isEnglishCharacter } from '../../domain/validators';
 
 import { ADD_CARD_FORM_FIELDS, ERRORS } from '../../constants/messages';
-import { isCharacter } from '../../domain/validators';
+import { useEffect } from 'react';
 
 const { OWNER_NAME } = ADD_CARD_FORM_FIELDS;
 
@@ -13,19 +16,14 @@ interface OwnerNameInputProps {
 }
 
 function OwnerNameInput({ setCardData }: OwnerNameInputProps) {
-  const validateInputOnChange = ({
-    value,
-  }: {
-    name?: string;
-    value: string;
-  }) => {
-    if (value !== '' && !isCharacter(value)) {
+  const validateInputOnChange = ({ value }: InputType) => {
+    if (value !== '' && !isEnglishCharacter(value)) {
       return { isValid: false, errorMsg: ERRORS.isNotAlphabet };
     }
     return { isValid: true, errorMsg: '' };
   };
 
-  const processData = () => {
+  const updateCardData = () => {
     setCardData('ownerName', Object.values(ownerName));
   };
 
@@ -43,8 +41,12 @@ function OwnerNameInput({ setCardData }: OwnerNameInputProps) {
       ownerName: false,
     },
     validateInputOnChange,
-    processData,
+    updateCardData,
   });
+
+  useEffect(() => {
+    console.log(ownerName);
+  }, [ownerName]);
 
   return (
     <Field
@@ -52,18 +54,26 @@ function OwnerNameInput({ setCardData }: OwnerNameInputProps) {
       labelText={OWNER_NAME.labelText}
       errMsg={errMsg}
     >
-      {Object.keys(ownerName).map((name) => (
-        <Input
-          key={name}
-          name={name as keyof OwnerName}
-          placeholder={OWNER_NAME.placeholder}
-          value={ownerName[name as keyof OwnerName]}
-          isError={isError[name as keyof OwnerName]}
-          isRequired={true}
-          handleChange={onChange}
-          handleOnBlur={onBlur}
-        ></Input>
-      ))}
+      {Object.keys(ownerName).map((n) => {
+        const name = n as keyof OwnerName;
+        return (
+          <>
+            <Label key={name} htmlFor={name} labelText={name} hideLabel />
+            <Input
+              key={name}
+              id={name}
+              name={name}
+              placeholder={OWNER_NAME.placeholder}
+              value={ownerName[name]}
+              isError={isError[name]}
+              isRequired
+              handleChange={onChange}
+              handleOnBlur={onBlur}
+              maxLength={26}
+            />
+          </>
+        );
+      })}
     </Field>
   );
 }

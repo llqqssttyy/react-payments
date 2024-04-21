@@ -1,10 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import Field from '../components/layout/Field/Field';
+import Field from '../components/common/Field/Field';
 import Input from '../components/common/Input/Input';
 
 const meta = {
   title: 'Field',
   component: Field,
+
+  argTypes: {
+    children: {
+      table: {
+        disable: true,
+      },
+      control: false,
+    },
+  },
 } satisfies Meta<typeof Field>;
 
 export default meta;
@@ -30,7 +39,7 @@ export const CardNumbers: Story = {
             handleChange={() => 1}
             handleOnBlur={() => 1}
             maxLength={4}
-          ></Input>
+          />
         ))}
       </>
     ),
@@ -56,7 +65,7 @@ export const ExpirationDate: Story = {
             handleChange={() => 1}
             handleOnBlur={() => 1}
             maxLength={4}
-          ></Input>
+          />
         ))}
       </>
     ),
@@ -78,9 +87,14 @@ export const OwnerName: Story = {
             isError={false}
             handleChange={() => 1}
             handleOnBlur={() => 1}
-          ></Input>
+          />
         ))}
       </>
     ),
+  },
+  argTypes: {
+    description: {
+      control: false,
+    },
   },
 };

@@ -1,8 +1,10 @@
 import React from 'react';
 
 import styles from './Input.module.css';
+import clsx from 'clsx';
 interface InputProps {
   name: string;
+  id: string;
   value: string;
   isError: boolean;
   placeholder: string;
@@ -14,6 +16,7 @@ interface InputProps {
 
 export default function Input({
   name,
+  id,
   value,
   placeholder,
   isError,
@@ -25,13 +28,14 @@ export default function Input({
   return (
     <input
       name={name}
+      id={id}
       placeholder={placeholder}
       value={value}
       maxLength={maxLength}
       required={isRequired}
       onChange={handleChange}
       onBlur={handleOnBlur}
-      className={`${styles.input} ${isError && styles.error}`}
-    ></input>
+      className={clsx(styles.input, { [styles.error]: isError })}
+    />
   );
 }

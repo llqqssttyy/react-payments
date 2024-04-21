@@ -1,9 +1,12 @@
 import Input from '../common/Input/Input';
-import Field from '../layout/Field/Field';
+import Field from '../common/Field/Field';
+import Label from '../common/Label/Label';
 
-import useAddCardInput from '../../hooks/useAddCardInput';
-import { ADD_CARD_FORM_FIELDS, ERRORS } from '../../constants/messages';
 import { hasFourDigit, isInteger } from '../../domain/validators';
+
+import useAddCardInput, { InputType } from '../../hooks/useAddCardInput';
+
+import { ADD_CARD_FORM_FIELDS, ERRORS } from '../../constants/messages';
 
 interface CardNumberInputProps {
   setCardData: (key: keyof CardInfo, newData: CardInfo[keyof CardInfo]) => void;
@@ -12,26 +15,21 @@ interface CardNumberInputProps {
 const { CARD_NUMBER } = ADD_CARD_FORM_FIELDS;
 
 export default function CardNumberInput({ setCardData }: CardNumberInputProps) {
-  const validateInputOnChange = ({
-    value,
-  }: {
-    name?: string;
-    value: string;
-  }) => {
+  const validateInputOnChange = ({ value }: InputType) => {
     if (!isInteger(value)) {
-      return { isValid: false, errorMsg: ERRORS.isNotAlphabet };
+      return { isValid: false, errorMsg: ERRORS.isNotInteger };
     }
     return { isValid: true, errorMsg: '' };
   };
 
-  const validateInputOnBlur = ({ value }: { name?: string; value: string }) => {
+  const validateInputOnBlur = ({ value }: InputType) => {
     if (!hasFourDigit(value)) {
       return { isValid: false, errorMsg: ERRORS.isNotFourDigit };
     }
     return { isValid: true, errorMsg: '' };
   };
 
-  const processData = () => {
+  const updateCardData = () => {
     setCardData('cardNumbers', Object.values(cardNumbers));
   };
 
@@ -56,7 +54,7 @@ export default function CardNumberInput({ setCardData }: CardNumberInputProps) {
     },
     validateInputOnChange,
     validateInputOnBlur,
-    processData,
+    updateCardData,
   });
 
   return (
@@ -66,18 +64,25 @@ export default function CardNumberInput({ setCardData }: CardNumberInputProps) {
       labelText={CARD_NUMBER.labelText}
       errMsg={errMsg}
     >
-      {Object.keys(cardNumbers).map((name) => (
-        <Input
-          key={name}
-          name={name as keyof CardNumbers}
-          placeholder={CARD_NUMBER.placeholder}
-          value={cardNumbers[name as keyof CardNumbers]}
-          isError={isError[name as keyof CardNumbers]}
-          handleChange={onChange}
-          handleOnBlur={onBlur}
-          maxLength={4}
-        ></Input>
-      ))}
+      {Object.keys(cardNumbers).map((n) => {
+        const name = n as keyof CardNumbers;
+        return (
+          <>
+            <Label key={name} htmlFor={name} labelText={name} hideLabel />
+            <Input
+              key={name}
+              id={name}
+              name={name}
+              placeholder={CARD_NUMBER.placeholder}
+              value={cardNumbers[name]}
+              isError={isError[name]}
+              handleChange={onChange}
+              handleOnBlur={onBlur}
+              maxLength={4}
+            />
+          </>
+        );
+      })}
     </Field>
   );
 }

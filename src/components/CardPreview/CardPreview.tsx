@@ -1,37 +1,29 @@
 import styles from './CardPreview.module.css';
+
 import {
   CARD_BRAND,
   MASK_START_INDEX,
   SYMBOLS,
 } from '../../constants/cardInfo';
-
-interface CardPreviewProps {
-  cardNumbers: string[];
-  expirationDate: string[];
-  ownerName: string;
-}
+import clsx from 'clsx';
 
 type Brand = 'visa' | 'master' | null;
 
-const getCardbrand = (cardNumbers: CardPreviewProps['cardNumbers']): Brand => {
+const getCardbrand = (cardNumbers: CardInfo['cardNumbers']): Brand => {
   const { visa, master } = CARD_BRAND;
 
-  if (cardNumbers[0].startsWith(visa.startNumber.toString())) return 'visa';
+  const visaPrefix = Number(cardNumbers[0].slice(0, 1));
+  const masterPrefix = Number(cardNumbers[0].slice(0, 2));
 
-  if (
-    Number(cardNumbers[0].slice(0, 2)) >= master.startNumber &&
-    Number(cardNumbers[0].slice(0, 2)) <= master.endNumber
-  )
+  if (visaPrefix === visa.startNumber) return 'visa';
+
+  if (masterPrefix >= master.startNumber && masterPrefix <= master.endNumber)
     return 'master';
 
   return null;
 };
 
-const CardPreview = ({
-  cardNumbers,
-  expirationDate,
-  ownerName,
-}: CardPreviewProps) => {
+const CardPreview = ({ cardNumbers, expirationDate, ownerName }: CardInfo) => {
   const brand = getCardbrand(cardNumbers);
 
   return (
@@ -51,7 +43,7 @@ const CardPreview = ({
             return (
               <span
                 key={index}
-                className={`${styles.cardNumber} ${isMask && styles.mask}`}
+                className={clsx(styles.cardNumber, { [styles.mask]: isMask })}
               >
                 {index >= MASK_START_INDEX
                   ? SYMBOLS.mask.repeat(cardNumber.length)

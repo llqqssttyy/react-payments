@@ -1,5 +1,6 @@
 import Input from '../common/Input/Input';
-import Field from '../layout/Field/Field';
+import Field from '../common/Field/Field';
+import Label from '../common/Label/Label';
 
 import {
   isInteger,
@@ -8,8 +9,9 @@ import {
   isValidDate,
 } from '../../domain/validators';
 
+import useAddCardInput, { InputType } from '../../hooks/useAddCardInput';
+
 import { ERRORS, ADD_CARD_FORM_FIELDS } from '../../constants/messages';
-import useAddCardInput from '../../hooks/useAddCardInput';
 
 const { EXPIRATION_DATE } = ADD_CARD_FORM_FIELDS;
 
@@ -20,28 +22,25 @@ interface ExpirationDateInputProps {
 const ExpirationDateInput = ({ setCardData }: ExpirationDateInputProps) => {
   const validateInputOnChange = ({ value }: { value: string }) => {
     if (!isInteger(value)) {
-      return { isValid: false, errorMsg: ERRORS.isNotFourDigit };
+      return { isValid: false, errorMsg: ERRORS.isNotInteger };
     }
     return { isValid: true, errorMsg: '' };
   };
 
-  const validateInputOnBlur = ({ value }: { name?: string; value: string }) => {
+  const validateInputOnBlur = ({ value }: InputType) => {
     if (!hasTwoDigit(value)) {
       return { isValid: false, errorMsg: ERRORS.isNotTwoDigit };
     }
-
     if (!isValidMonth(expirationDate.month)) {
       return { isValid: false, errorMsg: ERRORS.inValidMonth };
     }
-
     if (!isValidDate(expirationDate)) {
       return { isValid: false, errorMsg: ERRORS.deprecatedCard };
     }
-
     return { isValid: true, errorMsg: '' };
   };
 
-  const processData = () => {
+  const updateCardData = () => {
     setCardData('expirationDate', Object.values(expirationDate));
   };
 
@@ -62,7 +61,7 @@ const ExpirationDateInput = ({ setCardData }: ExpirationDateInputProps) => {
     },
     validateInputOnChange,
     validateInputOnBlur,
-    processData,
+    updateCardData,
   });
 
   return (
@@ -72,22 +71,29 @@ const ExpirationDateInput = ({ setCardData }: ExpirationDateInputProps) => {
       labelText={EXPIRATION_DATE.labelText}
       errMsg={errMsg}
     >
-      {Object.keys(expirationDate).map((name) => (
-        <Input
-          key={name}
-          name={name as keyof ExpirationDate}
-          placeholder={
-            name === 'month'
-              ? EXPIRATION_DATE.placeholder.month
-              : EXPIRATION_DATE.placeholder.year
-          }
-          value={expirationDate[name as keyof ExpirationDate]}
-          isError={isError[name as keyof ExpirationDate]}
-          handleChange={onChange}
-          handleOnBlur={onBlur}
-          maxLength={2}
-        ></Input>
-      ))}
+      {Object.keys(expirationDate).map((n) => {
+        const name = n as keyof ExpirationDate;
+        return (
+          <>
+            <Label key={name} htmlFor={name} labelText={name} hideLabel />
+            <Input
+              key={name}
+              id={name}
+              name={name}
+              placeholder={
+                name === 'month'
+                  ? EXPIRATION_DATE.placeholder.month
+                  : EXPIRATION_DATE.placeholder.year
+              }
+              value={expirationDate[name]}
+              isError={isError[name]}
+              handleChange={onChange}
+              handleOnBlur={onBlur}
+              maxLength={2}
+            />
+          </>
+        );
+      })}
     </Field>
   );
 };

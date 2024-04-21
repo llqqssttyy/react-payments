@@ -1,5 +1,6 @@
-import styles from './Field.module.css';
 import React from 'react';
+
+import styles from './Field.module.css';
 
 interface FieldProps {
   title: string;
@@ -19,12 +20,12 @@ export default function Field({
   return (
     <div className={styles.field}>
       <h2 className={styles.title}>{title}</h2>
-      <p className={styles.description}>{description}</p>
+      {description && <p className={styles.description}>{description}</p>}
 
-      <label>
-        <p className={styles.labelText}>{labelText}</p>
-        <div className={styles.inputWrapper}>{children}</div>
-      </label>
+      <fieldset className={styles.fieldset}>
+        <legend className={styles.legend}>{labelText}</legend>
+        {children}
+      </fieldset>
 
       <p className={styles.errMsg}>{errMsg}</p>
     </div>
