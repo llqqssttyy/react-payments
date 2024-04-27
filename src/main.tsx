@@ -10,7 +10,7 @@ import NotFoundPage from './components/pages/NotFound/NotFoundPage.tsx';
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: '/dist',
     element: <App />,
     children: [
       {
