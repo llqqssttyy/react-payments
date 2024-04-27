@@ -1,0 +1,23 @@
+.container {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 45px;
+
+  width: fit-content;
+
+  padding: 77px 30px 20px;
+  margin: auto;
+}
+
+.srOnly {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
