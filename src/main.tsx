@@ -9,27 +9,30 @@ import ConfirmAddCardPage from './components/pages/ConfirmAddCard/ConfirmAddCard
 import NotFoundPage from './components/pages/NotFound/NotFoundPage.tsx';
 import ErrorBoundary from './components/pages/ErrorBoundary/ErrorBoundary.tsx';
 
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <App />,
-    errorElement: <ErrorBoundary />,
-    children: [
-      {
-        index: true,
-        element: <AddCardPage />,
-      },
-      {
-        path: '/confirm',
-        element: <ConfirmAddCardPage />,
-      },
-    ],
-  },
-  {
-    path: '*',
-    element: <NotFoundPage />,
-  },
-]);
+const router = createBrowserRouter(
+  [
+    {
+      path: '/',
+      element: <App />,
+      errorElement: <ErrorBoundary />,
+      children: [
+        {
+          index: true,
+          element: <AddCardPage />,
+        },
+        {
+          path: '/confirm',
+          element: <ConfirmAddCardPage />,
+        },
+      ],
+    },
+    {
+      path: '*',
+      element: <NotFoundPage />,
+    },
+  ],
+  { basename: '/react-payments/dist' }
+);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
