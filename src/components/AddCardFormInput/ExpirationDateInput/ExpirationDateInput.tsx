@@ -10,14 +10,11 @@ import {
   isValidMonth,
 } from '../../../domain/validators';
 
+import { useEffect } from 'react';
 import { ADD_CARD_FORM_FIELDS, ERRORS } from '../../../constants/messages';
+import { useAddCardFormContext } from '../../../context/AddCardFormContext';
 import useFormFieldFocus from '../../../hooks/useFormFieldFocus';
 import { validateInput } from '../../../utils/validateInput';
-import { useEffect } from 'react';
-import {
-  AddCardFormContextType,
-  useAddCardFormContext,
-} from '../../../context/AddCardFormContext';
 
 const { title, description, labelText, placeholder, inputLabelText } =
   ADD_CARD_FORM_FIELDS.EXPIRATION_DATE;
@@ -28,11 +25,11 @@ const ExpirationDateInput = ({
   errorMessage,
   isError,
   isFieldComplete,
-  onChange,
-  onBlur,
+  handleInputChange,
+  handleInputBlur,
 }: InputProps<ExpirationDate>) => {
   const { findStep, curStep, setCurStep, setFormValid } =
-    useAddCardFormContext() as AddCardFormContextType;
+    useAddCardFormContext();
 
   const { refs, moveToNextInput } = useFormFieldFocus<HTMLInputElement>(2);
 
@@ -44,7 +41,7 @@ const ExpirationDateInput = ({
       { test: isInteger, errorMessage: ERRORS.isNotInteger },
     ];
     const result = validateInput(value, validations);
-    onChange({ ...result, name, value });
+    handleInputChange({ ...result, name, value });
 
     if (value.length === MAX_LENGTH)
       moveToNextInput(
@@ -72,7 +69,7 @@ const ExpirationDateInput = ({
       },
     ];
     const result = validateInput(value, validations);
-    onBlur({ ...result, name, value });
+    handleInputBlur({ ...result, name, value });
   };
 
   useEffect(() => {
@@ -83,41 +80,37 @@ const ExpirationDateInput = ({
     }
   }, [isFieldComplete]);
 
+  const isVisible = curStep >= findStep('expirationDate');
+  if (!isVisible) return null;
   return (
-    curStep >= findStep('expirationDate') && (
-      <Field
-        title={title}
-        description={description}
-        labelText={labelText}
-        errorMessage={errorMessage}
-      >
-        {Object.keys(expirationDate).map((n, index) => {
-          const name = n as keyof ExpirationDate;
-          return (
-            <Fragment key={name}>
-              <Label
-                htmlFor={name}
-                labelText={inputLabelText[name]}
-                hideLabel
-              />
-              <Input
-                ref={refs[index]}
-                id={name}
-                name={name}
-                placeholder={
-                  name === 'month' ? placeholder.month : placeholder.year
-                }
-                value={expirationDate[name]}
-                isError={isError[name]}
-                handleChange={handleOnChange}
-                handleOnBlur={handleOnBlur}
-                maxLength={MAX_LENGTH}
-              />
-            </Fragment>
-          );
-        })}
-      </Field>
-    )
+    <Field
+      title={title}
+      description={description}
+      labelText={labelText}
+      errorMessage={errorMessage}
+    >
+      {Object.keys(expirationDate).map((n, index) => {
+        const name = n as keyof ExpirationDate;
+        return (
+          <Fragment key={name}>
+            <Label htmlFor={name} labelText={inputLabelText[name]} hideLabel />
+            <Input
+              ref={refs[index]}
+              id={name}
+              name={name}
+              placeholder={
+                name === 'month' ? placeholder.month : placeholder.year
+              }
+              value={expirationDate[name]}
+              isError={isError[name]}
+              onChange={handleOnChange}
+              onBlur={handleOnBlur}
+              maxLength={MAX_LENGTH}
+            />
+          </Fragment>
+        );
+      })}
+    </Field>
   );
 };
 

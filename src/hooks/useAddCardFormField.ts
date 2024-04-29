@@ -16,6 +16,7 @@ interface UseAddCardFormFieldProps<T extends InitialValuesType> {
 
 export default function useAddCardFormField<T extends InitialValuesType>({
   initialValues,
+  /** @defaultValue false */
   visibility = false,
 }: UseAddCardFormFieldProps<T>) {
   const [values, setValues] = useState<T>(initialValues);
@@ -29,12 +30,12 @@ export default function useAddCardFormField<T extends InitialValuesType>({
   const [isFieldComplete, setIsFieldComplete] = useState(false);
   const [showNextStep, setShowNextStep] = useState(visibility);
 
-  const onChange = ({
+  const handleInputChange = ({
     isValid,
     errorMessage,
     name,
     value,
-  }: CustomInputHandlerProps<T>) => {
+  }: CustomInputHandlerArgs<T>) => {
     if (!isValid) {
       setErrorMessage(errorMessage);
       setIsError({ ...isError, [name]: true });
@@ -49,11 +50,11 @@ export default function useAddCardFormField<T extends InitialValuesType>({
     }
   };
 
-  const onBlur = ({
+  const handleInputBlur = ({
     isValid,
     errorMessage,
     name,
-  }: CustomInputHandlerProps<T>) => {
+  }: CustomInputHandlerArgs<T>) => {
     if (!isValid) {
       setErrorMessage(errorMessage);
       setIsError({ ...isError, [name]: true });
@@ -84,7 +85,7 @@ export default function useAddCardFormField<T extends InitialValuesType>({
     isError,
     showNextStep,
     isFieldComplete,
-    onChange,
-    onBlur,
+    handleInputChange,
+    handleInputBlur,
   };
 }

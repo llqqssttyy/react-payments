@@ -1,4 +1,4 @@
-import { Fragment, useEffect } from 'react';
+import { useEffect } from 'react';
 import Field from '../../common/Field/Field';
 import Input from '../../common/Input/Input';
 import Label from '../../common/Label/Label';
@@ -10,11 +10,8 @@ import {
 import { validateInput } from '../../../utils/validateInput';
 
 import { ADD_CARD_FORM_FIELDS, ERRORS } from '../../../constants/messages';
+import { useAddCardFormContext } from '../../../context/AddCardFormContext';
 import useFormFieldFocus from '../../../hooks/useFormFieldFocus';
-import {
-  AddCardFormContextType,
-  useAddCardFormContext,
-} from '../../../context/AddCardFormContext';
 
 const { title, labelText, placeholder, inputLabelText } =
   ADD_CARD_FORM_FIELDS.OWNER_NAME;
@@ -24,20 +21,20 @@ function OwnerNameInput({
   errorMessage,
   isError,
   isFieldComplete,
-  onChange,
-  onBlur,
+  handleInputChange,
+  handleInputBlur,
 }: InputProps<OwnerName>) {
   const { findStep, curStep, setCurStep, setFormValid } =
-    useAddCardFormContext() as AddCardFormContextType;
+    useAddCardFormContext();
 
   const {
     refs: [ref],
     moveToNextInput,
   } = useFormFieldFocus<HTMLInputElement>();
 
+  const name: OwnerNameKey = 'ownerName';
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
-    const name = event.target.name as OwnerNameKey;
 
     const validators = [
       {
@@ -46,12 +43,11 @@ function OwnerNameInput({
       },
     ];
     const result = validateInput(value, validators);
-    onChange({ ...result, name, value });
+    handleInputChange({ ...result, name, value });
   };
 
   const handleOnBlur = (event: React.FocusEvent<HTMLInputElement>) => {
     const { value } = event.target;
-    const name = event.target.name as OwnerNameKey;
 
     const validators = [
       {
@@ -60,7 +56,7 @@ function OwnerNameInput({
       },
     ];
     const result = validateInput(value, validators);
-    onBlur({ ...result, name, value });
+    handleInputBlur({ ...result, name, value });
 
     if (result.isValid) moveToNextInput();
   };
@@ -73,30 +69,28 @@ function OwnerNameInput({
     }
   }, [isFieldComplete]);
 
+  const isVisible = curStep >= findStep('ownerName');
+  if (!isVisible) return null;
   return (
-    curStep >= findStep('ownerName') && (
-      <Field title={title} labelText={labelText} errorMessage={errorMessage}>
-        <Fragment key="ownerName">
-          <Label
-            htmlFor="ownerName"
-            labelText={inputLabelText.ownerName}
-            hideLabel
-          />
-          <Input
-            ref={ref}
-            id="ownerName"
-            name="ownerName"
-            placeholder={placeholder}
-            value={ownerName.ownerName}
-            isError={isError.ownerName}
-            isRequired
-            handleChange={handleOnChange}
-            handleOnBlur={handleOnBlur}
-            maxLength={26}
-          />
-        </Fragment>
-      </Field>
-    )
+    <Field title={title} labelText={labelText} errorMessage={errorMessage}>
+      <Label
+        htmlFor="ownerName"
+        labelText={inputLabelText.ownerName}
+        hideLabel
+      />
+      <Input
+        ref={ref}
+        id="ownerName"
+        name="ownerName"
+        placeholder={placeholder}
+        value={ownerName.ownerName}
+        isError={isError.ownerName}
+        isRequired
+        onChange={handleOnChange}
+        onBlur={handleOnBlur}
+        maxLength={26}
+      />
+    </Field>
   );
 }
 

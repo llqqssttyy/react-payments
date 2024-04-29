@@ -1,16 +1,13 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import useFormFieldFocus from '../../../hooks/useFormFieldFocus';
 import Field from '../../common/Field/Field';
 import Input from '../../common/Input/Input';
 import Label from '../../common/Label/Label';
-import useFormFieldFocus from '../../../hooks/useFormFieldFocus';
 
-import { validateInput } from '../../../utils/validateInput';
-import { isInteger, isValidCVC } from '../../../domain/validators';
 import { ADD_CARD_FORM_FIELDS, ERRORS } from '../../../constants/messages';
-import {
-  AddCardFormContextType,
-  useAddCardFormContext,
-} from '../../../context/AddCardFormContext';
+import { useAddCardFormContext } from '../../../context/AddCardFormContext';
+import { isInteger, isValidCVC } from '../../../domain/validators';
+import { validateInput } from '../../../utils/validateInput';
 
 const { title, labelText, placeholder, inputLabelText } =
   ADD_CARD_FORM_FIELDS.CVC;
@@ -21,37 +18,36 @@ export default function CVCInput({
   errorMessage,
   isError,
   isFieldComplete,
-  onChange,
-  onBlur,
+  handleInputChange,
+  handleInputBlur,
 }: InputProps<CVC>) {
   const { findStep, curStep, setCurStep, setFormValid } =
-    useAddCardFormContext() as AddCardFormContextType;
+    useAddCardFormContext();
 
   const {
     refs: [ref],
     moveToNextInput,
   } = useFormFieldFocus<HTMLInputElement>();
 
+  const name: CVCKey = 'cvc';
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
-    const name = event.target.name as CVCKey;
 
     const validators = [{ test: isInteger, errorMessage: ERRORS.isNotInteger }];
     const result = validateInput(value, validators);
-    onChange({ ...result, name, value });
+    handleInputChange({ ...result, name, value });
 
     if (value.length === ref.current?.maxLength) moveToNextInput();
   };
 
   const handleOnBlur = (event: React.FocusEvent<HTMLInputElement>) => {
     const { value } = event.target;
-    const name = event.target.name as CVCKey;
 
     const validators = [
       { test: isValidCVC, errorMessage: ERRORS.isNotThreeDigit },
     ];
     const result = validateInput(value, validators);
-    onBlur({ ...result, name, value });
+    handleInputBlur({ ...result, name, value });
   };
 
   useEffect(() => {
@@ -62,25 +58,23 @@ export default function CVCInput({
     }
   }, [isFieldComplete]);
 
+  const isVisible = curStep >= findStep('cvc');
+  if (!isVisible) return null;
   return (
-    curStep >= findStep('cvc') && (
-      <Field title={title} labelText={labelText} errorMessage={errorMessage}>
-        <Fragment key="cvc">
-          <Label htmlFor="cvc" labelText={inputLabelText.cvc} hideLabel />
-          <Input
-            ref={ref}
-            id="cvc"
-            name="cvc"
-            placeholder={placeholder}
-            value={cvc.cvc}
-            isError={isError.cvc}
-            isRequired
-            handleChange={handleOnChange}
-            handleOnBlur={handleOnBlur}
-            maxLength={MAX_LENGTH}
-          />
-        </Fragment>
-      </Field>
-    )
+    <Field title={title} labelText={labelText} errorMessage={errorMessage}>
+      <Label htmlFor="cvc" labelText={inputLabelText.cvc} hideLabel />
+      <Input
+        ref={ref}
+        id="cvc"
+        name="cvc"
+        placeholder={placeholder}
+        value={cvc.cvc}
+        isError={isError.cvc}
+        isRequired
+        onChange={handleOnChange}
+        onBlur={handleOnBlur}
+        maxLength={MAX_LENGTH}
+      />
+    </Field>
   );
 }
